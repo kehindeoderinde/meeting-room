@@ -1,7 +1,7 @@
 const { default: mongoose } = require("mongoose");
 
 const meetingSchema = new mongoose.Schema({
-    'name' : {
+    name : {
         type: String,
         required: [true, 'A meeting must have a name']
     }
