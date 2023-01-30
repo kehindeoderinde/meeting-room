@@ -2,7 +2,7 @@ const { Room } = require("../models/rooms.model")
 
 exports.getRooms = async (req, res) => {
      try{
-        let query =  Room.find({})
+        let query =  Room.find()
 
         //FILTERING
         if(req.query){
@@ -12,11 +12,13 @@ exports.getRooms = async (req, res) => {
             query = query.find(queryObj)
         }
 
-        //SELECT PROPERTIES TO OMIT FROM  RESPONSE
+        //SELECT PROPERTIES TO OMIT FROM RESPONSE
+        // const queriesToOmit = ['__v', 'page_size', 'total', 'sort', 'order_by']
         query = query.select('-__v')
 
         //PAGINATION
-        const skip = req.query.page ?  (req.query.page - 1) * 15 : 0;
+        const page = req.query.page || 1
+        const skip = page ?  (page - 1) * 15 : 0;
         const pageSize = req.query.page_size || 15
 
         if(req.query.page){
@@ -32,7 +34,7 @@ exports.getRooms = async (req, res) => {
         res.status(200).json({
             meta: {
                 paging: {
-                    page: req.query.page || 1,
+                    page: page,
                     page_size: pageSize,
                     total: rooms.length
                 }
@@ -40,28 +42,49 @@ exports.getRooms = async (req, res) => {
             data: rooms
         })
 
-     } catch(e) {
+     } catch(err) {
         res.status(400).json({
-            status: "failed",
             error: err
         })
      }
 }
 
-exports.createRoom = (req, res) => {
-    Room.create(req.body)
-    .then(doc => {
+exports.createRoom = async (req, res) => {
+    try{
+        let query = Room.create(req.body)
+
+        const newRoom = await query
+
+        const roomReponse = {...newRoom}
+        delete roomReponse['__v']
+
         res.status(200).json({
-            status: "success",
-            data: {
-                room: doc
-            }
+            data: roomReponse
         })
-    })
-    .catch(err => {
+
+    } catch(err){
         res.status(400).json({
-            status: "failed",
             error: err
         })
-    })
+    }
+}
+
+exports.updateRoom = async (req, res) => {
+    try{
+        let query = Room.findByIdAndUpdate(req.params.id, req.body, {new: true, runValidators: true})
+        
+        const updatedRoom = await query
+
+        const roomReponse = {...updatedRoom}
+        delete roomReponse['__v']
+
+        res.status(200).json({
+            data: roomReponse
+        })
+
+    } catch(err){
+        res.status(400).json({
+            error: err
+        })
+    }
 }

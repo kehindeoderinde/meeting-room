@@ -3,7 +3,7 @@ const { default: mongoose } = require("mongoose");
 const roomSchema = new mongoose.Schema({
     name: {
         type: String,
-        unique: true,
+        unique: [true, 'A meeting must have a unique name'],
         required: [true, 'A name is required to create a room']
     },
     location: {
@@ -13,7 +13,7 @@ const roomSchema = new mongoose.Schema({
     capacity: {
         type: Number,
         min: 4,
-        max: 10,
+        max: 20,
         required: [true, 'A room should have a defined capacity']
     },
     floor: {
@@ -28,7 +28,7 @@ const roomSchema = new mongoose.Schema({
     deleted_at: {
         type: Date,
         select: false
-    },
+    }
 })
 
 exports.Room = mongoose.model('Room', roomSchema)
