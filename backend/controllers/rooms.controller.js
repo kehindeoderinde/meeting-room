@@ -88,3 +88,26 @@ exports.updateRoom = async (req, res) => {
         })
     }
 }
+
+exports.deleteRoom = async (req, res) => {
+    try{
+        let query = Room.findByIdAndDelete(req.params.id)
+        
+        const updatedRoom = await query
+
+        const roomReponse = {...updatedRoom}
+        delete roomReponse['__v']
+
+        res.status(200).json({
+            meta: {
+                status: `Room with ID: ${req.params.id} deleted`
+            },
+            data: updatedRoom
+        })
+
+    } catch(err){
+        res.status(400).json({
+            error: err
+        })
+    }
+}
